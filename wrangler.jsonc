@@ -1,5 +1,5 @@
 // Cloudflare Workers の設定ファイル。
-// 「★」の1か所だけ、自分の値に書き換えてから公開する。
+// 公開に必要な値は設定済み。
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "reipay",
@@ -17,8 +17,8 @@
     {
       "binding": "DB",
       "database_name": "reipay-db",
-      // ★ Cloudflare で作った D1 データベースの「Database ID」に書き換える
-      "database_id": "REPLACE_WITH_YOUR_D1_DATABASE_ID",
+      // Cloudflare で作った D1 データベースの「Database ID」
+      "database_id": "dd594a39-2ce4-4524-b321-e04de2c697a9",
       "migrations_dir": "migrations",
     },
   ],
