@@ -1,0 +1,4 @@
+# パソコンで動かすとき用の秘密の値。
+# このファイルをコピーして「.dev.vars」という名前にし、値を書き換えて使う。
+# .dev.vars は .gitignore に入っているので GitHub には上がらない。
+ADMIN_CODE=change-me-to-a-long-secret

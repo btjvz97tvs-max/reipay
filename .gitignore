@@ -1,0 +1,12 @@
+# 依存パッケージ
+node_modules/
+
+# Wrangler（ローカル実行）の作業フォルダ
+.wrangler/
+
+# ローカル用の秘密の値（GitHub に上げない）
+.dev.vars
+
+# OS が作るファイル
+.DS_Store
+Thumbs.db

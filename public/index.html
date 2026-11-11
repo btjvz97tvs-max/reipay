@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#ff0033" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="れいpay" />
+    <title>れいpay</title>
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" type="image/png" href="/icons/icon-192.png" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <link rel="stylesheet" href="/css/base.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/components.css" />
+    <script type="module" src="/js/main.js"></script>
+  </head>
+  <body>
+    <div class="app">
+      <header class="app-header" id="app-header" hidden>
+        <a class="app-header__logo" href="#/">れいpay</a>
+        <a
+          class="app-header__avatar"
+          id="header-avatar"
+          href="#/receive"
+          aria-label="自分のQRコード"
+        ></a>
+      </header>
+
+      <main class="app-main">
+        <!-- 起動中 -->
+        <section class="view" data-view="loading">
+          <p class="view__loading">読み込み中…</p>
+        </section>
+
+        <!-- はじめて開いたとき -->
+        <section class="view view--welcome" data-view="welcome" hidden>
+          <div class="welcome">
+            <p class="welcome__logo">れいpay</p>
+          </div>
+
+          <div class="sheet">
+            <h1 class="sheet__title">はじめる</h1>
+            <p class="sheet__lead">招待コードを入れると、2000れいがもらえます</p>
+
+            <form class="form" id="start-form" novalidate>
+              <div class="form-field">
+                <label class="form-field__label" for="start-invite-code">招待コード</label>
+                <input
+                  class="form-field__input form-field__input--code"
+                  id="start-invite-code"
+                  name="inviteCode"
+                  type="text"
+                  autocomplete="off"
+                  autocapitalize="characters"
+                  spellcheck="false"
+                  placeholder="XXXX-XXXX"
+                  required
+                />
+              </div>
+              <div class="form-field">
+                <label class="form-field__label" for="start-display-name">名前</label>
+                <input
+                  class="form-field__input"
+                  id="start-display-name"
+                  name="displayName"
+                  type="text"
+                  autocomplete="nickname"
+                  maxlength="20"
+                  placeholder="友達に表示されます"
+                  required
+                />
+              </div>
+              <p class="form__error" role="alert" data-form-error hidden></p>
+              <button class="button button--primary button--block" type="submit">はじめる</button>
+            </form>
+
+            <p class="divider">または</p>
+
+            <p class="form__error" id="restore-error" role="alert" hidden></p>
+            <button
+              class="button button--secondary button--block"
+              id="restore-button"
+              type="button"
+            >
+              Face ID で以前のデータを復元
+            </button>
+          </div>
+        </section>
+
+        <!-- ホーム -->
+        <section class="view" data-view="home" hidden>
+          <div class="home-hero">
+            <div class="home-card">
+              <nav class="quick-actions" aria-label="支払い">
+                <a class="quick-actions__item" href="#/scan">
+                  <svg class="quick-actions__icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                      d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M7 12h10"
+                    />
+                  </svg>
+                  <span class="quick-actions__label">スキャン</span>
+                </a>
+                <a class="quick-actions__item" href="#/pay">
+                  <svg class="quick-actions__icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M4 5v14M7 5v14M10 5v14M14 5v14M17 5v14M20 5v14" />
+                  </svg>
+                  <span class="quick-actions__label">支払う</span>
+                </a>
+              </nav>
+
+              <div class="balance-card">
+                <p class="balance-card__label">れい残高</p>
+                <p class="balance-card__amount">
+                  <span class="balance-card__value" id="balance-value">0</span>
+                  <span class="balance-card__unit">れい</span>
+                </p>
+              </div>
+              <p class="home-card__owner" id="balance-owner"></p>
+            </div>
+          </div>
+
+          <button class="notice" id="passkey-banner" type="button" hidden>
+            <span class="notice__body">
+              <span class="notice__title">Face ID を登録する</span>
+              <span class="notice__text">データが消えても元に戻せるようになります</span>
+            </span>
+            <svg class="notice__chevron" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M9 6l6 6-6 6" />
+            </svg>
+          </button>
+          <p class="form__error form__error--inset" id="passkey-error" role="alert" hidden></p>
+
+          <a class="list-link" id="admin-link" href="#/admin" hidden>
+            <span class="list-link__label">管理者メニュー</span>
+            <svg class="list-link__chevron" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M9 6l6 6-6 6" />
+            </svg>
+          </a>
+
+          <section class="history" aria-labelledby="history-title">
+            <h2 class="section-title" id="history-title">取引履歴</h2>
+            <ul class="history__list" id="history-list"></ul>
+            <p class="history__empty" id="history-empty" hidden>まだ取引はありません</p>
+          </section>
+        </section>
+
+        <!-- 支払う（自分のコードを見せる） -->
+        <section class="view view--pay" data-view="pay" hidden>
+          <div class="view__header view__header--inverse">
+            <a class="view__back" href="#/" aria-label="閉じる">
+              <svg class="view__back-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M6 6l12 12M18 6L6 18" />
+              </svg>
+            </a>
+            <h2 class="view__title">支払う</h2>
+          </div>
+
+          <div class="code-card">
+            <div class="code-card__barcode" id="pay-barcode"></div>
+            <p class="code-card__digits" id="pay-digits"></p>
+            <div class="code-card__qr" id="pay-qr"></div>
+            <div class="code-card__footer">
+              <p class="code-card__timer" id="pay-timer"></p>
+              <button class="code-card__refresh" id="pay-refresh-button" type="button">
+                <svg class="code-card__refresh-icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5" />
+                </svg>
+                更新
+              </button>
+            </div>
+          </div>
+
+          <p class="pay-balance">
+            残高 <span class="pay-balance__value" id="pay-balance"></span>
+          </p>
+        </section>
+
+        <!-- スキャン -->
+        <section class="view view--scan" data-view="scan" hidden>
+          <div class="view__header view__header--dark">
+            <a class="view__back" href="#/" aria-label="閉じる">
+              <svg class="view__back-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M6 6l12 12M18 6L6 18" />
+              </svg>
+            </a>
+            <h2 class="view__title">スキャン</h2>
+          </div>
+
+          <div class="scanner">
+            <video class="scanner__video" id="scan-video" muted playsinline></video>
+            <div class="scanner__frame" aria-hidden="true">
+              <span class="scanner__corner scanner__corner--top-left"></span>
+              <span class="scanner__corner scanner__corner--top-right"></span>
+              <span class="scanner__corner scanner__corner--bottom-left"></span>
+              <span class="scanner__corner scanner__corner--bottom-right"></span>
+            </div>
+            <p class="scanner__status" id="scan-status" role="status">カメラを準備しています…</p>
+          </div>
+
+          <form class="scan-manual" id="scan-manual-form" novalidate>
+            <label class="scan-manual__label" for="scan-manual-code">
+              読み取れないときは番号を入力
+            </label>
+            <div class="scan-manual__row">
+              <input
+                class="scan-manual__input"
+                id="scan-manual-code"
+                name="code"
+                type="text"
+                inputmode="numeric"
+                autocomplete="off"
+                placeholder="8123 4567 8901 2345 6789"
+              />
+              <button class="scan-manual__submit" type="submit">決定</button>
+            </div>
+            <p class="form__error" role="alert" data-form-error hidden></p>
+          </form>
+        </section>
+
+        <!-- 金額を入力（相手の支払いコードを読み取ったあと） -->
+        <section class="view" data-view="charge" hidden>
+          <div class="view__header">
+            <a class="view__back" href="#/scan" aria-label="戻る">
+              <svg class="view__back-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M15 6l-6 6 6 6" />
+              </svg>
+            </a>
+            <h2 class="view__title">金額を入力</h2>
+          </div>
+
+          <div class="person-card" id="charge-payer">
+            <span class="person-card__avatar" aria-hidden="true"></span>
+            <div class="person-card__names">
+              <p class="person-card__name"></p>
+              <p class="person-card__handle"></p>
+            </div>
+            <span class="person-card__role">から受け取る</span>
+          </div>
+
+          <form class="card form" id="charge-form" novalidate>
+            <div class="amount-input">
+              <label class="amount-input__label" for="charge-amount">金額</label>
+              <input
+                class="amount-input__field"
+                id="charge-amount"
+                name="amount"
+                type="text"
+                inputmode="numeric"
+                autocomplete="off"
+                placeholder="0"
+                required
+              />
+              <span class="amount-input__unit">れい</span>
+            </div>
+            <div class="form-field">
+              <label class="form-field__label" for="charge-memo">メモ</label>
+              <input
+                class="form-field__input"
+                id="charge-memo"
+                name="memo"
+                type="text"
+                maxlength="50"
+                autocomplete="off"
+                placeholder="任意"
+              />
+            </div>
+            <p class="form__error" role="alert" data-form-error hidden></p>
+            <button class="button button--primary button--block" type="submit">受け取る</button>
+          </form>
+        </section>
+
+        <!-- 受け取る（自分の受け取りQRを見せる） -->
+        <section class="view" data-view="receive" hidden>
+          <div class="view__header">
+            <h2 class="view__title">受け取る</h2>
+          </div>
+
+          <div class="code-card">
+            <p class="code-card__owner" id="receive-owner"></p>
+            <div class="code-card__qr code-card__qr--large" id="receive-qr"></div>
+            <p class="code-card__note">このQRコードを読み取ってもらうと、相手があなたに支払えます</p>
+          </div>
+        </section>
+
+        <!-- 送る -->
+        <section class="view" data-view="send" hidden>
+          <div class="view__header">
+            <h2 class="view__title">送る</h2>
+          </div>
+
+          <form class="card form" id="send-form" novalidate>
+            <div class="form-field">
+              <label class="form-field__label" for="send-recipient">送り先</label>
+              <select
+                class="form-field__input"
+                id="send-recipient"
+                name="toHandle"
+                required
+              ></select>
+            </div>
+            <div class="amount-input">
+              <label class="amount-input__label" for="send-amount">金額</label>
+              <input
+                class="amount-input__field"
+                id="send-amount"
+                name="amount"
+                type="text"
+                inputmode="numeric"
+                autocomplete="off"
+                placeholder="0"
+                required
+              />
+              <span class="amount-input__unit">れい</span>
+            </div>
+            <p class="form__hint">残高 <span id="send-balance"></span></p>
+            <div class="form-field">
+              <label class="form-field__label" for="send-memo">メモ</label>
+              <input
+                class="form-field__input"
+                id="send-memo"
+                name="memo"
+                type="text"
+                maxlength="50"
+                autocomplete="off"
+                placeholder="任意"
+              />
+            </div>
+            <p class="form__error" role="alert" data-form-error hidden></p>
+            <button class="button button--primary button--block" type="submit">送る</button>
+          </form>
+        </section>
+
+        <!-- 管理者メニュー -->
+        <section class="view" data-view="admin" hidden>
+          <div class="view__header">
+            <a class="view__back" href="#/" aria-label="戻る">
+              <svg class="view__back-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M15 6l-6 6 6 6" />
+              </svg>
+            </a>
+            <h2 class="view__title">管理者メニュー</h2>
+          </div>
+
+          <h3 class="section-title">招待コード</h3>
+          <section class="card admin-section">
+            <button
+              class="button button--secondary button--block"
+              id="invite-create-button"
+              type="button"
+            >
+              招待コードを発行
+            </button>
+            <p class="admin-section__text">1つのコードで1人だけ始められます</p>
+            <ul class="invite-list" id="invite-list"></ul>
+          </section>
+
+          <h3 class="section-title">れいを配る</h3>
+          <form class="card form" id="issue-form" novalidate>
+            <div class="form-field">
+              <label class="form-field__label" for="issue-recipient">配る相手</label>
+              <select
+                class="form-field__input"
+                id="issue-recipient"
+                name="toHandle"
+                required
+              ></select>
+            </div>
+            <div class="amount-input">
+              <label class="amount-input__label" for="issue-amount">金額</label>
+              <input
+                class="amount-input__field"
+                id="issue-amount"
+                name="amount"
+                type="text"
+                inputmode="numeric"
+                autocomplete="off"
+                placeholder="0"
+                required
+              />
+              <span class="amount-input__unit">れい</span>
+            </div>
+            <div class="form-field">
+              <label class="form-field__label" for="issue-memo">メモ</label>
+              <input
+                class="form-field__input"
+                id="issue-memo"
+                name="memo"
+                type="text"
+                maxlength="50"
+                autocomplete="off"
+                placeholder="任意"
+              />
+            </div>
+            <p class="form__error" role="alert" data-form-error hidden></p>
+            <button class="button button--primary button--block" type="submit">配る</button>
+          </form>
+
+          <h3 class="section-title" id="admin-users-title">みんなの残高</h3>
+          <ul class="user-list" id="admin-user-list" aria-labelledby="admin-users-title"></ul>
+        </section>
+      </main>
+
+      <nav class="tab-bar" id="tab-bar" aria-label="メニュー" hidden>
+        <a class="tab-bar__item" href="#/" data-tab="home">
+          <svg class="tab-bar__icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z" />
+          </svg>
+          <span class="tab-bar__label">ホーム</span>
+        </a>
+        <a class="tab-bar__item" href="#/send" data-tab="send">
+          <svg class="tab-bar__icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 12h14M13 6l6 6-6 6" />
+          </svg>
+          <span class="tab-bar__label">送る</span>
+        </a>
+        <a class="tab-bar__item tab-bar__item--scan" href="#/scan" data-tab="scan">
+          <span class="tab-bar__scan-button">
+            <svg class="tab-bar__icon tab-bar__icon--scan" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M7 12h10"
+              />
+            </svg>
+          </span>
+          <span class="tab-bar__label">スキャン</span>
+        </a>
+        <a class="tab-bar__item" href="#/pay" data-tab="pay">
+          <svg class="tab-bar__icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 5v14M7 5v14M10 5v14M14 5v14M17 5v14M20 5v14" />
+          </svg>
+          <span class="tab-bar__label">支払う</span>
+        </a>
+        <a class="tab-bar__item" href="#/receive" data-tab="receive">
+          <svg class="tab-bar__icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2"
+            />
+          </svg>
+          <span class="tab-bar__label">受け取る</span>
+        </a>
+      </nav>
+    </div>
+
+    <dialog class="dialog" id="confirm-dialog" aria-labelledby="confirm-title">
+      <form class="dialog__body" method="dialog">
+        <h2 class="dialog__title" id="confirm-title"></h2>
+        <p class="dialog__message" id="confirm-message"></p>
+        <div class="dialog__actions">
+          <button class="dialog__button" type="submit" value="cancel">キャンセル</button>
+          <button
+            class="dialog__button dialog__button--primary"
+            id="confirm-ok"
+            type="submit"
+            value="confirm"
+          >
+            OK
+          </button>
+        </div>
+      </form>
+    </dialog>
+
+    <p class="toast" id="toast" role="status" aria-live="polite" hidden></p>
+
+    <template id="history-date-template">
+      <li class="history-date"></li>
+    </template>
+
+    <template id="history-item-template">
+      <li class="history-item">
+        <span class="history-item__avatar" aria-hidden="true"></span>
+        <div class="history-item__body">
+          <p class="history-item__title"></p>
+          <p class="history-item__meta"></p>
+        </div>
+        <div class="history-item__side">
+          <p class="history-item__amount"></p>
+          <p class="history-item__time"></p>
+        </div>
+      </li>
+    </template>
+
+    <template id="admin-user-template">
+      <li class="user-row">
+        <span class="user-row__avatar" aria-hidden="true"></span>
+        <div class="user-row__names">
+          <p class="user-row__display-name"></p>
+          <p class="user-row__handle"></p>
+        </div>
+        <p class="user-row__balance"></p>
+      </li>
+    </template>
+
+    <template id="invite-row-template">
+      <li class="invite-row">
+        <code class="invite-row__code"></code>
+        <span class="invite-row__status"></span>
+        <button class="invite-row__copy" type="button">コピー</button>
+      </li>
+    </template>
+  </body>
+</html>

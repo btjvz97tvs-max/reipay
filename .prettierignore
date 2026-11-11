@@ -1,0 +1,5 @@
+node_modules/
+.wrangler/
+public/icons/
+public/vendor/
+package-lock.json

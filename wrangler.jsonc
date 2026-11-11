@@ -1,0 +1,28 @@
+// Cloudflare Workers の設定ファイル。
+// 「★」の1か所だけ、自分の値に書き換えてから公開する。
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "reipay",
+  "main": "server/index.js",
+  "compatibility_date": "2026-11-11",
+
+  // 画面のファイル（HTML/CSS/JS/画像）は public/ だけを公開する。
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": true,
+  },
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "reipay-db",
+      // ★ Cloudflare で作った D1 データベースの「Database ID」に書き換える
+      "database_id": "REPLACE_WITH_YOUR_D1_DATABASE_ID",
+      "migrations_dir": "migrations",
+    },
+  ],
+
+  // ダッシュボードで登録した値を、公開のたびに消さないようにする
+  "keep_vars": true,
+}

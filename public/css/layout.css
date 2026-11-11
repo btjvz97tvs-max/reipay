@@ -1,0 +1,169 @@
+/* 画面全体の配置（ロゴのヘッダー、各画面のタイトルバー、下のタブバー、見出し） */
+
+.app {
+  display: flex;
+  flex-direction: column;
+  max-width: 480px;
+  min-height: 100dvh;
+  margin: 0 auto;
+  background: var(--color-bg);
+}
+
+/* ホームだけに出す、ロゴのヘッダー */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: calc(var(--header-height) + env(safe-area-inset-top));
+  padding: env(safe-area-inset-top) var(--space-4) 0;
+  background: var(--color-header);
+  color: var(--color-on-header);
+}
+
+.app-header__logo {
+  font-size: var(--font-size-xl);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+}
+
+.app-header__avatar {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  text-decoration: none;
+  place-items: center;
+}
+
+/* タブバーに隠れないよう、下に余白をとる（タブバーを出さない画面では不要） */
+.app-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding-bottom: calc(var(--tab-bar-height) + var(--space-6) + env(safe-area-inset-bottom));
+}
+
+.app:has(.tab-bar[hidden]) .app-main {
+  padding-bottom: 0;
+}
+
+.view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.view__loading {
+  padding-top: 30vh;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+/* 各画面のタイトルバー（中央にタイトル、左に戻る/閉じる） */
+.view__header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: calc(var(--header-height) + env(safe-area-inset-top));
+  padding-top: env(safe-area-inset-top);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.view__header--inverse {
+  border-bottom: 0;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.view__header--dark {
+  border-bottom: 0;
+  background: var(--color-scanner-bg);
+  color: var(--color-on-primary);
+}
+
+.view__title {
+  font-size: var(--font-size-md);
+  font-weight: 700;
+}
+
+.view__back {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  display: grid;
+  width: var(--header-height);
+  height: var(--header-height);
+  color: inherit;
+  place-items: center;
+}
+
+.view__header:not(.view__header--inverse, .view__header--dark) .view__back {
+  color: var(--color-primary);
+}
+
+.view__back-icon {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.2;
+}
+
+.section-title {
+  margin: var(--space-2) var(--page-gutter) calc(var(--space-2) * -1);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+}
+
+/* 画面いっぱいに色を敷く画面（支払う＝赤、スキャン＝黒、はじめる＝白） */
+.view--pay,
+.view--scan,
+.view--welcome {
+  flex: 1;
+  padding-bottom: calc(var(--space-8) + env(safe-area-inset-bottom));
+}
+
+.view--pay {
+  background: var(--color-primary);
+}
+
+.view--scan {
+  background: var(--color-scanner-bg);
+  color: var(--color-on-primary);
+}
+
+.view--welcome {
+  gap: 0;
+  background: var(--color-surface);
+}
+
+/* 下のタブバー。真ん中の「スキャン」だけ赤い丸で少し飛び出させる */
+.tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  width: 100%;
+  max-width: 480px;
+  height: calc(var(--tab-bar-height) + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-tab-bar);
+  transform: translateX(-50%);
+}

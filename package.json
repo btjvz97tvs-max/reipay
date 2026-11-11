@@ -1,0 +1,19 @@
+{
+  "name": "reipay",
+  "version": "0.1.0",
+  "private": true,
+  "description": "友達同士で使う架空通貨「れい」の決済アプリ",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:migrate:local": "wrangler d1 migrations apply reipay-db --local",
+    "db:migrate:remote": "wrangler d1 migrations apply reipay-db --remote",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "prettier": "^3.0.0",
+    "wrangler": "^4.0.0"
+  }
+}
