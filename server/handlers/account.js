@@ -5,7 +5,6 @@ import { timingSafeEqualText } from '../lib/bytes.js';
 import { generateHandle } from '../lib/codes.js';
 import { buildSessionCookie } from '../lib/cookie.js';
 import { isUniqueViolation } from '../lib/db-errors.js';
-import { requireEnv } from '../lib/env.js';
 import { HttpError, jsonResponse, readJson } from '../lib/http.js';
 import { toPublicUser } from '../lib/presenters.js';
 import { parseDisplayName, parseInviteCode } from '../lib/validate.js';
@@ -13,7 +12,11 @@ import { findInviteCode } from '../repositories/invite-codes.js';
 import { hasPasskey } from '../repositories/passkeys.js';
 import { deleteExpiredSessions, extendSession, insertSession } from '../repositories/sessions.js';
 import { buildInsertGrantStatement } from '../repositories/transactions.js';
-import { buildInsertUserStatement, findUserByHandle } from '../repositories/users.js';
+import {
+  buildInsertUserStatement,
+  findUserByHandle,
+  hasAnyUser,
+} from '../repositories/users.js';
 
 const HANDLE_RETRY_LIMIT = 3;
 const WELCOME_MEMO = 'はじめのプレゼント';
@@ -26,11 +29,24 @@ function inviteCodeUsedError() {
   );
 }
 
-// 招待コードの代わりに管理者コードが入力されたら、管理者のアカウントを作る。
-async function resolveInvitation(env, rawCode) {
+// 管理者のアカウントになるのは、次のどちらかのとき。
+// 1. まだ誰も始めていない（最初に始めた人が管理者になるので、設定の登録はいらない）
+// 2. 招待コードの欄に、Cloudflare に登録した ADMIN_CODE と同じ値が入力された（任意の設定）
+async function isAdminInvitation(env, rawCode) {
+  if (!(await hasAnyUser(env.DB))) {
+    return true;
+  }
   // 登録時に前後へ空白や改行が入っても一致するよう、両端の空白を取り除いて比べる。
-  const adminCode = requireEnv(env, 'ADMIN_CODE').trim();
-  if (rawCode.length > 0 && (await timingSafeEqualText(rawCode, adminCode))) {
+  const adminCode = typeof env.ADMIN_CODE === 'string' ? env.ADMIN_CODE.trim() : '';
+  return (
+    adminCode.length > 0 &&
+    rawCode.length > 0 &&
+    (await timingSafeEqualText(rawCode, adminCode))
+  );
+}
+
+async function resolveInvitation(env, rawCode) {
+  if (await isAdminInvitation(env, rawCode)) {
     return { isAdmin: true, inviteCode: null };
   }
 

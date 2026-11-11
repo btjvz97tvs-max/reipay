@@ -30,6 +30,11 @@ export async function findUserByHandle(db, handle) {
   return toUser(row);
 }
 
+export async function hasAnyUser(db) {
+  const row = await db.prepare('SELECT 1 AS found FROM users LIMIT 1').first();
+  return row !== null;
+}
+
 export async function listUsers(db) {
   const { results } = await db
     .prepare(`SELECT ${USER_COLUMNS} FROM users ORDER BY display_name, handle`)
