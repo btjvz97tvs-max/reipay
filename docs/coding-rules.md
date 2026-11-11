@@ -60,3 +60,10 @@
 - 二重に処理されてはいけない操作には、一意な ID（`request_id`）を付ける
 - エラーは `HttpError` で投げ、メッセージは画面にそのまま出せる日本語にする
 - 設定値は `server/config.js` に集める
+
+## データベースの表を変えるとき
+
+- `migrations/` に次の番号のファイル（例: `0003_add-something.sql`）を足し、`server/repositories/schema.js` の `MIGRATIONS` に追加する
+  - ファイル名だけは Wrangler の決まりに合わせて「番号_名前.sql」にする
+- 一度公開したマイグレーションのファイルは書き換えない（すでに実行済みのデータベースには反映されないため）
+- アプリが動いたときに自動で実行され、実行済みのものは `schema_migrations` 表に記録される

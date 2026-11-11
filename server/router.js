@@ -2,7 +2,7 @@
 // access: 'public' = 誰でも / 'user' = アカウントが必要 / 'admin' = 管理者だけ
 
 import { getCurrentUser, startAccount } from './handlers/account.js';
-import { createIssue, listAllUsers } from './handlers/admin.js';
+import { createCollection, createIssue, listAllUsers } from './handlers/admin.js';
 import {
   authenticateWithPasskey,
   createAuthenticationChallenge,
@@ -65,6 +65,7 @@ const ROUTES = [
 
   { method: 'GET', path: '/api/admin/users', access: 'admin', handler: listAllUsers },
   { method: 'POST', path: '/api/admin/issues', access: 'admin', handler: createIssue },
+  { method: 'POST', path: '/api/admin/collections', access: 'admin', handler: createCollection },
 ];
 
 function findRoute(method, path) {

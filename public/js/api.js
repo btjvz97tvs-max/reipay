@@ -118,3 +118,7 @@ export function fetchAdminUsers() {
 export function issueCurrency(issue) {
   return request('POST', '/api/admin/issues', issue);
 }
+
+export function collectCurrency(collection) {
+  return request('POST', '/api/admin/collections', collection);
+}

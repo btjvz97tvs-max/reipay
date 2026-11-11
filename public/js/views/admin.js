@@ -1,6 +1,6 @@
-// 管理者メニュー（れいを配る、みんなの残高を見る）。
+// 管理者メニュー（れいを配る、れいを回収する、みんなの残高を見る）。
 
-import { fetchAdminUsers, fetchCurrentUser, issueCurrency } from '../api.js';
+import { collectCurrency, fetchAdminUsers, fetchCurrentUser, issueCurrency } from '../api.js';
 import {
   cloneTemplate,
   confirmAction,
@@ -17,9 +17,32 @@ import {
 } from '../lib/ui.js';
 import { getCurrentUser, setCurrentUser } from '../state.js';
 
-let issueRequestId = crypto.randomUUID();
+// 「配る」と「回収する」は入力の形も流れも同じなので、違うところだけをここにまとめる。
+const ACTIONS = {
+  issue: {
+    formId: 'issue-form',
+    handleField: 'toHandle',
+    missingTargetMessage: '配る相手を選んでください',
+    confirmTitle: '配る前の確認',
+    confirmLabel: '配る',
+    buildConfirmMessage: (name, amount) => `${name} さんに\n${formatRei(amount)} を配ります`,
+    buildDoneMessage: (name, amount) => `${name} さんに${formatRei(amount)}配りました`,
+    send: issueCurrency,
+  },
+  collect: {
+    formId: 'collect-form',
+    handleField: 'fromHandle',
+    missingTargetMessage: '回収する相手を選んでください',
+    confirmTitle: '回収する前の確認',
+    confirmLabel: '回収する',
+    buildConfirmMessage: (name, amount) => `${name} さんから\n${formatRei(amount)} を回収します`,
+    buildDoneMessage: (name, amount) => `${name} さんから${formatRei(amount)}回収しました`,
+    send: collectCurrency,
+  },
+};
 
-// れいを配る・残高一覧 --------------------------------------------------
+const requestIds = { issue: crypto.randomUUID(), collect: crypto.randomUUID() };
+let usersByHandle = new Map();
 
 function createUserRow(user) {
   const row = cloneTemplate('admin-user-template');
@@ -32,40 +55,48 @@ function createUserRow(user) {
 }
 
 function renderUsers(users) {
+  usersByHandle = new Map(users.map((user) => [user.handle, user]));
   document.getElementById('admin-user-list').replaceChildren(...users.map(createUserRow));
-  const options = users.map((user) => ({ value: user.handle, label: formatPersonLabel(user) }));
-  fillSelect(document.getElementById('issue-recipient'), options, '選んでください');
+
+  const issueOptions = users.map((user) => ({ value: user.handle, label: formatPersonLabel(user) }));
+  fillSelect(document.getElementById('issue-recipient'), issueOptions, '選んでください');
+
+  // 回収では、相手の今の残高も見えるようにする。
+  const collectOptions = users.map((user) => ({
+    value: user.handle,
+    label: `${formatPersonLabel(user)}（${formatRei(user.balance)}）`,
+  }));
+  fillSelect(document.getElementById('collect-target'), collectOptions, '選んでください');
 }
 
-async function finishIssue(form, users) {
-  issueRequestId = crypto.randomUUID();
+async function finishAction(actionName, form, users) {
+  requestIds[actionName] = crypto.randomUUID();
   form.reset();
   renderUsers(users);
   const { user } = await fetchCurrentUser();
   setCurrentUser(user);
 }
 
-async function handleIssueSubmit(event) {
+async function handleActionSubmit(actionName, event) {
   event.preventDefault();
+  const action = ACTIONS[actionName];
   const form = event.currentTarget;
   const formData = new FormData(form);
-  const input = {
-    toHandle: formData.get('toHandle'),
-    amount: parseAmountInput(formData.get('amount')),
-    memo: formData.get('memo').trim(),
-  };
+  const handle = formData.get(action.handleField);
+  const amount = parseAmountInput(formData.get('amount'));
+  const memo = formData.get('memo').trim();
 
-  const validationError = input.toHandle ? validateAmount(input.amount) : '配る相手を選んでください';
+  const validationError = handle ? validateAmount(amount) : action.missingTargetMessage;
   setFormError(form, validationError);
   if (validationError) {
     return;
   }
 
-  const recipientLabel = form.elements.toHandle.selectedOptions[0].textContent;
+  const targetName = usersByHandle.get(handle)?.displayName ?? '相手';
   const isConfirmed = await confirmAction({
-    title: '配る前の確認',
-    message: `${recipientLabel} さんに\n${formatRei(input.amount)} を配ります`,
-    confirmLabel: '配る',
+    title: action.confirmTitle,
+    message: action.buildConfirmMessage(targetName, amount),
+    confirmLabel: action.confirmLabel,
   });
   if (!isConfirmed) {
     return;
@@ -73,14 +104,19 @@ async function handleIssueSubmit(event) {
 
   setFormBusy(form, true);
   try {
-    const { users } = await issueCurrency({ ...input, requestId: issueRequestId });
-    await finishIssue(form, users);
-    showToast(`${recipientLabel} さんに${formatRei(input.amount)}配りました`);
+    const { users } = await action.send({
+      [action.handleField]: handle,
+      amount,
+      memo,
+      requestId: requestIds[actionName],
+    });
+    await finishAction(actionName, form, users);
+    showToast(action.buildDoneMessage(targetName, amount));
   } catch (error) {
     if (error.code === 'duplicate_request') {
-      // 通信が途切れて再送したときなど。前の分はもう配れているので、一覧を取り直す。
+      // 通信が途切れて再送したときなど。前の分はもう済んでいるので、一覧を取り直す。
       const { users } = await fetchAdminUsers();
-      await finishIssue(form, users);
+      await finishAction(actionName, form, users);
       showToast(error.message);
       return;
     }
@@ -91,13 +127,19 @@ async function handleIssueSubmit(event) {
 }
 
 export function init() {
-  document.getElementById('issue-form').addEventListener('submit', handleIssueSubmit);
+  for (const [actionName, action] of Object.entries(ACTIONS)) {
+    document
+      .getElementById(action.formId)
+      .addEventListener('submit', (event) => handleActionSubmit(actionName, event));
+  }
 }
 
 export async function show() {
-  const form = document.getElementById('issue-form');
-  form.reset();
-  setFormError(form, null);
+  for (const { formId } of Object.values(ACTIONS)) {
+    const form = document.getElementById(formId);
+    form.reset();
+    setFormError(form, null);
+  }
   showView('admin');
 
   if (!getCurrentUser().isAdmin) {

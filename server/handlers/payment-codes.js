@@ -133,7 +133,11 @@ export async function chargePaymentCode(request, env, context) {
       throw usedCodeError();
     }
     if (isCheckViolation(error)) {
-      throw new HttpError(400, 'payer_insufficient_balance', `相手の残高が足りません（${amount}${CURRENCY_UNIT}）`);
+      throw new HttpError(
+        400,
+        'payer_insufficient_balance',
+        `相手の残高が足りません（${amount}${CURRENCY_UNIT}）`,
+      );
     }
     throw error;
   }

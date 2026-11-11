@@ -5,6 +5,8 @@ function toCounterparty(handle, displayName) {
   return { handle, displayName };
 }
 
+// kind: 'grant'（はじめのプレゼント）/ 'issue'（管理者が配る）/ 'collect'（管理者が回収）/ 'transfer'
+// 回収には受け取る人がいないので、相手（counterparty）は null になる。
 function toTransactionForUser(row, userId) {
   const isIncoming = row.to_user_id === userId;
   const counterparty = isIncoming
@@ -59,7 +61,7 @@ export async function listTransactionsForUser(db, userId, limit) {
          to_user.display_name AS to_display_name
        FROM transactions AS t
        LEFT JOIN users AS from_user ON from_user.id = t.from_user_id
-       JOIN users AS to_user ON to_user.id = t.to_user_id
+       LEFT JOIN users AS to_user ON to_user.id = t.to_user_id
        WHERE t.from_user_id = ?1 OR t.to_user_id = ?1
        ORDER BY t.id DESC
        LIMIT ?2`,

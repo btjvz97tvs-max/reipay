@@ -30,6 +30,9 @@ function describeTransaction(transaction) {
   if (transaction.kind === 'issue') {
     return { avatar: BONUS_AVATAR_LABEL, isBonus: true, title: '管理者', action };
   }
+  if (transaction.kind === 'collect') {
+    return { avatar: BONUS_AVATAR_LABEL, isBonus: true, title: '管理者', action: '回収' };
+  }
   const name = transaction.counterparty?.displayName ?? '不明なユーザー';
   return { avatar: getInitial(name), isBonus: false, title: name, action };
 }

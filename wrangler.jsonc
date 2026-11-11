@@ -19,7 +19,6 @@
       "database_name": "reipay-db",
       // Cloudflare で作った D1 データベースの「Database ID」
       "database_id": "dd594a39-2ce4-4524-b321-e04de2c697a9",
-      "migrations_dir": "migrations",
     },
   ],
 

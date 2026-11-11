@@ -371,6 +371,47 @@
             <button class="button button--primary button--block" type="submit">配る</button>
           </form>
 
+          <h3 class="section-title">れいを回収する</h3>
+          <form class="card form" id="collect-form" novalidate>
+            <div class="form-field">
+              <label class="form-field__label" for="collect-target">回収する相手</label>
+              <select
+                class="form-field__input"
+                id="collect-target"
+                name="fromHandle"
+                required
+              ></select>
+            </div>
+            <div class="amount-input">
+              <label class="amount-input__label" for="collect-amount">金額</label>
+              <input
+                class="amount-input__field"
+                id="collect-amount"
+                name="amount"
+                type="text"
+                inputmode="numeric"
+                autocomplete="off"
+                placeholder="0"
+                required
+              />
+              <span class="amount-input__unit">れい</span>
+            </div>
+            <div class="form-field">
+              <label class="form-field__label" for="collect-memo">メモ</label>
+              <input
+                class="form-field__input"
+                id="collect-memo"
+                name="memo"
+                type="text"
+                maxlength="50"
+                autocomplete="off"
+                placeholder="任意"
+              />
+            </div>
+            <p class="form__error" role="alert" data-form-error hidden></p>
+            <button class="button button--secondary button--block" type="submit">回収する</button>
+          </form>
+
           <h3 class="section-title" id="admin-users-title">みんなの残高</h3>
           <ul class="user-list" id="admin-user-list" aria-labelledby="admin-users-title"></ul>
         </section>
