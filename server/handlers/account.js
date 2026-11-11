@@ -28,7 +28,8 @@ function inviteCodeUsedError() {
 
 // 招待コードの代わりに管理者コードが入力されたら、管理者のアカウントを作る。
 async function resolveInvitation(env, rawCode) {
-  const adminCode = requireEnv(env, 'ADMIN_CODE');
+  // 登録時に前後へ空白や改行が入っても一致するよう、両端の空白を取り除いて比べる。
+  const adminCode = requireEnv(env, 'ADMIN_CODE').trim();
   if (rawCode.length > 0 && (await timingSafeEqualText(rawCode, adminCode))) {
     return { isAdmin: true, inviteCode: null };
   }
