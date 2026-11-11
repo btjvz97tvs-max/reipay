@@ -46,7 +46,7 @@ reipay/
 │   ├── middleware/            だれのアクセスかの確認
 │   ├── repositories/          データベースの読み書き
 │   └── lib/                   共通の道具
-├── migrations/0001_init.sql   データベースの表の定義
+├── migrations/0001_init.sql   データベースの表の定義（最初に自動で実行される）
 ├── docs/coding-rules.md       コードの書き方のルール
 └── wrangler.jsonc             Cloudflare の設定
 ```
@@ -61,9 +61,10 @@ reipay/
 ### 2. データベースを作る
 
 1. [Cloudflare](https://dash.cloudflare.com/) に無料登録してログインする
-2. 左のメニューから **D1** を開き、`reipay-db` という名前でデータベースを作る
+2. [D1 SQL database](https://dash.cloudflare.com/?to=/:account/workers/d1) を開き、`reipay-db` という名前でデータベースを作る
 3. 作ったデータベースの **Database ID** をコピーする
-4. **コンソール（Console）** を開き、`migrations/0001_init.sql` の中身をすべて貼り付けて実行する
+
+データベースの中の表（ユーザー・残高・履歴など）は、アプリが最初に開かれたときに自動で作られます。
 
 ### 3. 設定ファイルを書き換える
 

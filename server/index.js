@@ -2,10 +2,12 @@
 
 import { errorResponse, HttpError } from './lib/http.js';
 import { applySecurityHeaders } from './lib/security-headers.js';
+import { ensureSchema } from './repositories/schema.js';
 import { handleApiRequest } from './router.js';
 
 async function handleApi(request, env) {
   try {
+    await ensureSchema(env.DB);
     return await handleApiRequest(request, env);
   } catch (error) {
     if (error instanceof HttpError) {
