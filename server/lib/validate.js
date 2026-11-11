@@ -11,7 +11,7 @@ import {
   DISPLAY_NAME_MAX_LENGTH,
   MEMO_MAX_LENGTH,
 } from '../config.js';
-import { HANDLE_PATTERN, INVITE_CODE_PATTERN, normalizeInviteCode } from './codes.js';
+import { HANDLE_PATTERN } from './codes.js';
 import { HttpError } from './http.js';
 
 const REQUEST_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -32,14 +32,6 @@ export function parseDisplayName(value) {
     throw invalidInput(`名前は1〜${DISPLAY_NAME_MAX_LENGTH}文字にしてください`);
   }
   return displayName;
-}
-
-export function parseInviteCode(value) {
-  const inviteCode = normalizeInviteCode(typeof value === 'string' ? value : '');
-  if (!INVITE_CODE_PATTERN.test(inviteCode)) {
-    throw new HttpError(403, 'invalid_invite_code', '招待コードが違います');
-  }
-  return inviteCode;
 }
 
 export function parseHandle(value) {

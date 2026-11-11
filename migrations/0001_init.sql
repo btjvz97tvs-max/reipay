@@ -2,20 +2,12 @@
 -- アプリが最初に動いたときに自動で実行される（何度実行しても大丈夫なよう IF NOT EXISTS を付けている）。
 -- 残高は users.balance に持ち、CHECK 制約でマイナスにならないことをデータベース側でも保証する。
 
--- 招待コードは1回だけ使える。使われたかどうかは users.invite_code から分かる。
-CREATE TABLE IF NOT EXISTS invite_codes (
-  code TEXT PRIMARY KEY,
-  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
-);
-
 -- handle: QRコードなどで相手を特定するための公開ID（ランダムな8文字）
--- invite_code: UNIQUE なので、同じ招待コードで2つ目のアカウントは作れない
 CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   handle TEXT NOT NULL UNIQUE,
   display_name TEXT NOT NULL,
   is_admin INTEGER NOT NULL DEFAULT 0 CHECK (is_admin IN (0, 1)),
-  invite_code TEXT UNIQUE REFERENCES invite_codes (code),
   balance INTEGER NOT NULL DEFAULT 0 CHECK (balance >= 0),
   created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 );

@@ -43,16 +43,10 @@ export async function listUsers(db) {
 }
 
 // アカウント作成は「はじめのプレゼント」の記録と一緒に batch で実行するため、文だけを返す。
-export function buildInsertUserStatement(
-  db,
-  { handle, displayName, isAdmin, inviteCode, balance },
-) {
+export function buildInsertUserStatement(db, { handle, displayName, isAdmin, balance }) {
   return db
-    .prepare(
-      `INSERT INTO users (handle, display_name, is_admin, invite_code, balance)
-       VALUES (?, ?, ?, ?, ?)`,
-    )
-    .bind(handle, displayName, isAdmin ? 1 : 0, inviteCode, balance);
+    .prepare('INSERT INTO users (handle, display_name, is_admin, balance) VALUES (?, ?, ?, ?)')
+    .bind(handle, displayName, isAdmin ? 1 : 0, balance);
 }
 
 // 残高を変える文は batch でまとめて実行するため、ここでは実行せずに文だけを返す。

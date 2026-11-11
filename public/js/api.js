@@ -118,11 +118,3 @@ export function fetchAdminUsers() {
 export function issueCurrency(issue) {
   return request('POST', '/api/admin/issues', issue);
 }
-
-export function fetchInviteCodes() {
-  return request('GET', '/api/admin/invite-codes');
-}
-
-export function createInviteCode() {
-  return request('POST', '/api/admin/invite-codes', {});
-}

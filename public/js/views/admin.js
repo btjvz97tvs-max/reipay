@@ -1,12 +1,6 @@
-// 管理者メニュー（招待コードを作る、れいを配る、みんなの残高を見る）。
+// 管理者メニュー（れいを配る、みんなの残高を見る）。
 
-import {
-  createInviteCode,
-  fetchAdminUsers,
-  fetchCurrentUser,
-  fetchInviteCodes,
-  issueCurrency,
-} from '../api.js';
+import { fetchAdminUsers, fetchCurrentUser, issueCurrency } from '../api.js';
 import {
   cloneTemplate,
   confirmAction,
@@ -24,52 +18,6 @@ import {
 import { getCurrentUser, setCurrentUser } from '../state.js';
 
 let issueRequestId = crypto.randomUUID();
-
-// 招待コード ------------------------------------------------------------
-
-async function copyInviteCode(code) {
-  try {
-    await navigator.clipboard.writeText(code);
-    showToast(`${code} をコピーしました`);
-  } catch {
-    showToast('コピーできませんでした。コードを長押ししてコピーしてください', 'error');
-  }
-}
-
-function createInviteRow(inviteCode) {
-  const row = cloneTemplate('invite-row-template');
-  const copyButton = row.querySelector('.invite-row__copy');
-  row.querySelector('.invite-row__code').textContent = inviteCode.code;
-
-  if (inviteCode.usedBy) {
-    row.classList.add('invite-row--used');
-    row.querySelector('.invite-row__status').textContent = `${inviteCode.usedBy.displayName}さんが使用`;
-    copyButton.hidden = true;
-  } else {
-    row.querySelector('.invite-row__status').textContent = '未使用';
-    copyButton.addEventListener('click', () => copyInviteCode(inviteCode.code));
-  }
-  return row;
-}
-
-function renderInviteCodes(inviteCodes) {
-  document.getElementById('invite-list').replaceChildren(...inviteCodes.map(createInviteRow));
-}
-
-async function handleInviteCreateClick(event) {
-  const button = event.currentTarget;
-  button.disabled = true;
-  try {
-    const { inviteCode } = await createInviteCode();
-    const { inviteCodes } = await fetchInviteCodes();
-    renderInviteCodes(inviteCodes);
-    showToast(`招待コード ${inviteCode.code} を作りました`);
-  } catch (error) {
-    showToast(error.message, 'error');
-  } finally {
-    button.disabled = false;
-  }
-}
 
 // れいを配る・残高一覧 --------------------------------------------------
 
@@ -143,9 +91,6 @@ async function handleIssueSubmit(event) {
 }
 
 export function init() {
-  document
-    .getElementById('invite-create-button')
-    .addEventListener('click', handleInviteCreateClick);
   document.getElementById('issue-form').addEventListener('submit', handleIssueSubmit);
 }
 
@@ -158,9 +103,8 @@ export async function show() {
   if (!getCurrentUser().isAdmin) {
     return;
   }
-  const [{ users }, { inviteCodes }] = await Promise.all([fetchAdminUsers(), fetchInviteCodes()]);
+  const { users } = await fetchAdminUsers();
   renderUsers(users);
-  renderInviteCodes(inviteCodes);
 }
 
 export function hide() {}

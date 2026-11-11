@@ -1,4 +1,4 @@
-// はじめて開いたときの画面（招待コードで始める / Face ID で復元する）。
+// はじめて開いたときの画面（名前を入れて始める / Face ID で復元する）。
 
 import {
   authenticateWithPasskey,
@@ -24,10 +24,7 @@ async function handleStartSubmit(event) {
   setFormError(form, null);
   setFormBusy(form, true);
   try {
-    const { user } = await startAccount({
-      inviteCode: formData.get('inviteCode').trim(),
-      displayName: formData.get('displayName').trim(),
-    });
+    const { user } = await startAccount({ displayName: formData.get('displayName').trim() });
     form.reset();
     continueToApp(user, `${formatRei(user.balance)}もらいました！`);
   } catch (error) {
