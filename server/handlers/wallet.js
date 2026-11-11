@@ -9,7 +9,7 @@ import {
   userNotFoundError,
 } from '../lib/errors.js';
 import { jsonResponse, readJson } from '../lib/http.js';
-import { toPublicUser, toUserSummary } from '../lib/presenters.js';
+import { toPublicUser, toTransactionView, toUserSummary } from '../lib/presenters.js';
 import { parseAmount, parseHandle, parseMemo, parseRequestId } from '../lib/validate.js';
 import { hasPasskey } from '../repositories/passkeys.js';
 import {
@@ -41,7 +41,7 @@ export async function lookupUser(request, env) {
 
 export async function listMyTransactions(request, env, context) {
   const transactions = await listTransactionsForUser(env.DB, context.user.id, HISTORY_LIMIT);
-  return jsonResponse({ transactions });
+  return jsonResponse({ transactions: transactions.map(toTransactionView) });
 }
 
 export async function createTransfer(request, env, context) {

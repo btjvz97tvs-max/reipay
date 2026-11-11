@@ -13,7 +13,7 @@ import {
   formatPersonLabel,
   formatRei,
   formatTime,
-  getInitial,
+  renderAvatar,
   showToast,
   showView,
   toDayKey,
@@ -22,30 +22,35 @@ import { getCurrentUser, setCurrentUser } from '../state.js';
 
 const BONUS_AVATAR_LABEL = 'れ';
 
+// 履歴1行の見た目。管理者からのプレゼントや回収は「れ」のアイコン、ほかは相手のアイコンを出す。
 function describeTransaction(transaction) {
   const action = transaction.direction === 'in' ? '受け取り' : '支払い';
   if (transaction.kind === 'grant') {
-    return { avatar: BONUS_AVATAR_LABEL, isBonus: true, title: 'はじめのプレゼント', action };
+    return { person: null, title: 'はじめのプレゼント', action };
   }
   if (transaction.kind === 'issue') {
-    return { avatar: BONUS_AVATAR_LABEL, isBonus: true, title: '管理者', action };
+    return { person: null, title: '管理者', action };
   }
   if (transaction.kind === 'collect') {
-    return { avatar: BONUS_AVATAR_LABEL, isBonus: true, title: '管理者', action: '回収' };
+    return { person: null, title: '管理者', action: '回収' };
   }
-  const name = transaction.counterparty?.displayName ?? '不明なユーザー';
-  return { avatar: getInitial(name), isBonus: false, title: name, action };
+  const person = transaction.counterparty ?? { displayName: '不明なユーザー', avatarUrl: null };
+  return { person, title: person.displayName, action };
 }
 
 function createHistoryItem(transaction) {
   const item = cloneTemplate('history-item-template');
-  const { avatar, isBonus, title, action } = describeTransaction(transaction);
+  const { person, title, action } = describeTransaction(transaction);
   const memo = transaction.kind === 'grant' ? '' : transaction.memo;
   const sign = transaction.direction === 'in' ? '+' : '-';
 
   const avatarElement = item.querySelector('.history-item__avatar');
-  avatarElement.textContent = avatar;
-  avatarElement.classList.toggle('history-item__avatar--bonus', isBonus);
+  if (person) {
+    renderAvatar(avatarElement, person);
+  } else {
+    avatarElement.textContent = BONUS_AVATAR_LABEL;
+    avatarElement.classList.add('history-item__avatar--bonus');
+  }
 
   item.querySelector('.history-item__title').textContent = title;
   item.querySelector('.history-item__meta').textContent = [action, memo].filter(Boolean).join('・');
@@ -81,7 +86,7 @@ function createHistoryRows(transactions) {
 function renderUser(user) {
   document.getElementById('balance-value').textContent = String(user.balance);
   document.getElementById('balance-owner').textContent = formatPersonLabel(user);
-  document.getElementById('header-avatar').textContent = getInitial(user.displayName);
+  renderAvatar(document.getElementById('header-avatar'), user);
   document.getElementById('admin-link').hidden = !user.isAdmin;
   document.getElementById('passkey-banner').hidden = user.hasPasskey || !isPasskeySupported();
 }

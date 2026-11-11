@@ -3,6 +3,7 @@
 
 import { getCurrentUser, startAccount } from './handlers/account.js';
 import { createCollection, createIssue, listAllUsers } from './handlers/admin.js';
+import { deleteMyAvatar, getAvatar, updateMyAvatar } from './handlers/avatars.js';
 import {
   authenticateWithPasskey,
   createAuthenticationChallenge,
@@ -27,6 +28,9 @@ import { authenticate, authenticateAdmin } from './middleware/authenticate.js';
 const ROUTES = [
   { method: 'POST', path: '/api/account/start', access: 'public', handler: startAccount },
   { method: 'GET', path: '/api/me', access: 'user', handler: getCurrentUser },
+  { method: 'PUT', path: '/api/me/avatar', access: 'user', handler: updateMyAvatar },
+  { method: 'DELETE', path: '/api/me/avatar', access: 'user', handler: deleteMyAvatar },
+  { method: 'GET', path: '/api/avatars', access: 'user', handler: getAvatar },
 
   {
     method: 'POST',

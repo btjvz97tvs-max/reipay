@@ -8,6 +8,7 @@ import * as adminView from './views/admin.js';
 import * as chargeView from './views/charge.js';
 import * as homeView from './views/home.js';
 import * as payView from './views/pay.js';
+import * as profileView from './views/profile.js';
 import * as receiveView from './views/receive.js';
 import * as scanView from './views/scan.js';
 import * as sendView from './views/send.js';
@@ -19,6 +20,7 @@ const ALL_VIEWS = [
   chargeView,
   homeView,
   payView,
+  profileView,
   receiveView,
   scanView,
   sendView,
@@ -31,6 +33,7 @@ const ROUTES = [
   { pattern: /^#\/receive$/, view: receiveView },
   { pattern: /^#\/send(?:\/([23456789a-hjkmnp-z]{8}))?$/, view: sendView, paramNames: ['handle'] },
   { pattern: /^#\/charge$/, view: chargeView },
+  { pattern: /^#\/profile$/, view: profileView },
   { pattern: /^#\/admin$/, view: adminView, isAdminOnly: true },
 ];
 

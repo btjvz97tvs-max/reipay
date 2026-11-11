@@ -55,6 +55,14 @@ export function fetchCurrentUser() {
   return request('GET', '/api/me');
 }
 
+export function updateMyAvatar(image) {
+  return request('PUT', '/api/me/avatar', { image });
+}
+
+export function deleteMyAvatar() {
+  return request('DELETE', '/api/me/avatar');
+}
+
 // Face ID（パスキー） ----------------------------------------------------
 
 export function fetchPasskeyRegistrationOptions() {

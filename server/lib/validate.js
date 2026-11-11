@@ -7,15 +7,19 @@ import {
 import {
   AMOUNT_MAX,
   AMOUNT_MIN,
+  AVATAR_MAX_BYTES,
   CURRENCY_UNIT,
   DISPLAY_NAME_MAX_LENGTH,
   MEMO_MAX_LENGTH,
 } from '../config.js';
+import { base64ToBytes } from './bytes.js';
 import { HANDLE_PATTERN } from './codes.js';
 import { HttpError } from './http.js';
+import { detectImageType } from './image-type.js';
 
 const REQUEST_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const BASE64URL_PATTERN = /^[A-Za-z0-9_-]+$/;
+const IMAGE_DATA_URL_PATTERN = /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/]+={0,2})$/;
 
 function invalidInput(message) {
   return new HttpError(400, 'invalid_input', message);
@@ -82,4 +86,27 @@ export function parseBase64Url(value) {
     throw new HttpError(400, 'passkey_verification_failed', 'Face ID の確認に失敗しました');
   }
   return value;
+}
+
+// 「data:image/jpeg;base64,...」の形の画像を受け取り、中身が本当にその種類の画像かを確かめる。
+export function parseAvatarImage(value) {
+  const match = typeof value === 'string' ? IMAGE_DATA_URL_PATTERN.exec(value) : null;
+  if (!match) {
+    throw invalidInput('画像の形式が正しくありません（JPEG・PNG・WebP が使えます）');
+  }
+
+  const [, declaredType, imageBase64] = match;
+  let bytes;
+  try {
+    bytes = base64ToBytes(imageBase64);
+  } catch {
+    throw invalidInput('画像の形式が正しくありません');
+  }
+  if (bytes.length > AVATAR_MAX_BYTES) {
+    throw invalidInput('画像が大きすぎます');
+  }
+  if (detectImageType(bytes) !== declaredType) {
+    throw invalidInput('画像の形式が正しくありません');
+  }
+  return { contentType: declaredType, imageBase64 };
 }

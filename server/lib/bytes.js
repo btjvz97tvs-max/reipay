@@ -19,6 +19,10 @@ export function bytesToBase64(bytes) {
   return btoa(binary);
 }
 
+export function base64ToBytes(text) {
+  return Uint8Array.from(atob(text), (char) => char.charCodeAt(0));
+}
+
 export function bytesToBase64Url(bytes) {
   return bytesToBase64(bytes).replaceAll('+', '-').replaceAll('/', '_').replace(/=+$/, '');
 }

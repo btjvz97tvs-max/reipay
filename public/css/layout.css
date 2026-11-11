@@ -35,6 +35,7 @@
   width: 32px;
   height: 32px;
   border: 2px solid currentColor;
+  overflow: hidden;
   border-radius: 50%;
   font-size: var(--font-size-sm);
   font-weight: 700;

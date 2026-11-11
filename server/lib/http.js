@@ -21,14 +21,14 @@ export function errorResponse(error) {
   return jsonResponse(body, { status: error.status });
 }
 
-export async function readJson(request) {
+export async function readJson(request, { maxBytes = REQUEST_BODY_MAX_BYTES } = {}) {
   const contentType = request.headers.get('Content-Type') ?? '';
   if (!contentType.startsWith('application/json')) {
     throw new HttpError(415, 'unsupported_media_type', 'JSON形式で送ってください');
   }
 
   const text = await request.text();
-  if (new TextEncoder().encode(text).length > REQUEST_BODY_MAX_BYTES) {
+  if (new TextEncoder().encode(text).length > maxBytes) {
     throw new HttpError(413, 'payload_too_large', '送信データが大きすぎます');
   }
 

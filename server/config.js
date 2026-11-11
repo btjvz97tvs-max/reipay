@@ -18,3 +18,7 @@ export const WEBAUTHN_CHALLENGE_TTL_MINUTES = 5;
 export const WEBAUTHN_RP_NAME = 'れいpay';
 
 export const REQUEST_BODY_MAX_BYTES = 20000;
+
+// アイコン画像（画面側で小さな正方形にしてから送る）
+export const AVATAR_MAX_BYTES = 100000;
+export const AVATAR_REQUEST_MAX_BYTES = 160000;

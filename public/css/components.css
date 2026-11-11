@@ -46,6 +46,17 @@
   width: 100%;
 }
 
+/* 隠した input をラベルのボタンで操作するとき、input の状態をボタンに映す */
+.visually-hidden:focus-visible + .button {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.visually-hidden:disabled + .button {
+  cursor: default;
+  opacity: 0.4;
+}
+
 /* カード（灰色の背景の上に並べる白い面） ------------------------------- */
 
 .card {
@@ -430,6 +441,7 @@ select.form-field__input {
   flex-shrink: 0;
   width: 40px;
   height: 40px;
+  overflow: hidden;
   border-radius: 50%;
   background: var(--color-avatar);
   color: var(--color-on-avatar);
@@ -720,6 +732,46 @@ select.form-field__input {
   cursor: pointer;
 }
 
+/* アイコン（丸い枠の中に写真を入れる。枠の大きさは使う場所のクラスで決める） ----- */
+
+.avatar-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* アイコンの設定画面 ---------------------------------------------------- */
+
+.profile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+  padding: var(--space-6) var(--space-4) var(--space-4);
+}
+
+.profile__avatar {
+  display: grid;
+  align-self: center;
+  width: 112px;
+  height: 112px;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--color-avatar);
+  color: var(--color-on-avatar);
+  font-size: var(--font-size-avatar);
+  font-weight: 700;
+  place-items: center;
+}
+
+.profile__name {
+  margin: 0 0 var(--space-2);
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  text-align: center;
+}
+
 /* 相手の表示（金額を入力する画面） -------------------------------------- */
 
 .person-card {
@@ -738,6 +790,7 @@ select.form-field__input {
   flex-shrink: 0;
   width: 44px;
   height: 44px;
+  overflow: hidden;
   border-radius: 50%;
   background: var(--color-avatar);
   color: var(--color-on-avatar);
@@ -791,6 +844,7 @@ select.form-field__input {
   flex-shrink: 0;
   width: 36px;
   height: 36px;
+  overflow: hidden;
   border-radius: 50%;
   background: var(--color-avatar);
   color: var(--color-on-avatar);

@@ -1,4 +1,4 @@
-const USER_COLUMNS = 'id, handle, display_name, is_admin, balance, created_at';
+const USER_COLUMNS = 'id, handle, display_name, is_admin, balance, avatar_updated_at, created_at';
 
 function toUser(row) {
   if (!row) {
@@ -10,6 +10,7 @@ function toUser(row) {
     displayName: row.display_name,
     isAdmin: row.is_admin === 1,
     balance: row.balance,
+    avatarVersion: row.avatar_updated_at,
     createdAt: row.created_at,
   };
 }

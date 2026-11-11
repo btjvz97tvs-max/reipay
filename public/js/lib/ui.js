@@ -6,7 +6,7 @@ const FULL_WIDTH_DIGIT_OFFSET = 0xfee0;
 const MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000;
 
 // 下のタブバーを出す画面と、上のロゴのヘッダーを出す画面
-const TAB_BAR_VIEWS = ['home', 'send', 'receive', 'admin'];
+const TAB_BAR_VIEWS = ['home', 'send', 'receive', 'admin', 'profile'];
 const APP_HEADER_VIEWS = ['home'];
 
 const timeFormatter = new Intl.DateTimeFormat('ja-JP', { hour: '2-digit', minute: '2-digit' });
@@ -163,8 +163,22 @@ export function getInitial(displayName) {
   return Array.from(displayName)[0] ?? '?';
 }
 
+// 丸いアイコンを描く。写真があれば写真、なければ名前の頭文字を出す。
+export function renderAvatar(element, person) {
+  if (!person.avatarUrl) {
+    element.textContent = getInitial(person.displayName);
+    return;
+  }
+  const image = document.createElement('img');
+  image.className = 'avatar-image';
+  image.src = person.avatarUrl;
+  image.alt = '';
+  image.decoding = 'async';
+  element.replaceChildren(image);
+}
+
 export function renderPerson(element, person) {
-  element.querySelector('.person-card__avatar').textContent = getInitial(person.displayName);
+  renderAvatar(element.querySelector('.person-card__avatar'), person);
   element.querySelector('.person-card__name').textContent = person.displayName;
   element.querySelector('.person-card__handle').textContent = `#${person.handle.slice(0, 4)}`;
 }

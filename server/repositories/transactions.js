@@ -1,8 +1,8 @@
-function toCounterparty(handle, displayName) {
+function toCounterparty(handle, displayName, avatarVersion) {
   if (handle === null) {
     return null;
   }
-  return { handle, displayName };
+  return { handle, displayName, avatarVersion };
 }
 
 // kind: 'grant'（はじめのプレゼント）/ 'issue'（管理者が配る）/ 'collect'（管理者が回収）/ 'transfer'
@@ -10,8 +10,8 @@ function toCounterparty(handle, displayName) {
 function toTransactionForUser(row, userId) {
   const isIncoming = row.to_user_id === userId;
   const counterparty = isIncoming
-    ? toCounterparty(row.from_handle, row.from_display_name)
-    : toCounterparty(row.to_handle, row.to_display_name);
+    ? toCounterparty(row.from_handle, row.from_display_name, row.from_avatar_updated_at)
+    : toCounterparty(row.to_handle, row.to_display_name, row.to_avatar_updated_at);
 
   return {
     id: row.id,
@@ -57,8 +57,10 @@ export async function listTransactionsForUser(db, userId, limit) {
          t.to_user_id,
          from_user.handle AS from_handle,
          from_user.display_name AS from_display_name,
+         from_user.avatar_updated_at AS from_avatar_updated_at,
          to_user.handle AS to_handle,
-         to_user.display_name AS to_display_name
+         to_user.display_name AS to_display_name,
+         to_user.avatar_updated_at AS to_avatar_updated_at
        FROM transactions AS t
        LEFT JOIN users AS from_user ON from_user.id = t.from_user_id
        LEFT JOIN users AS to_user ON to_user.id = t.to_user_id

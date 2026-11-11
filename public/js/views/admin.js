@@ -7,8 +7,8 @@ import {
   fillSelect,
   formatPersonLabel,
   formatRei,
-  getInitial,
   parseAmountInput,
+  renderAvatar,
   setFormBusy,
   setFormError,
   showToast,
@@ -47,7 +47,7 @@ let usersByHandle = new Map();
 function createUserRow(user) {
   const row = cloneTemplate('admin-user-template');
   const adminMark = user.isAdmin ? '（管理者）' : '';
-  row.querySelector('.user-row__avatar').textContent = getInitial(user.displayName);
+  renderAvatar(row.querySelector('.user-row__avatar'), user);
   row.querySelector('.user-row__display-name').textContent = `${user.displayName}${adminMark}`;
   row.querySelector('.user-row__handle').textContent = `#${user.handle.slice(0, 4)}`;
   row.querySelector('.user-row__balance').textContent = formatRei(user.balance);

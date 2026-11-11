@@ -5,12 +5,14 @@
 
 import initSql from '../../migrations/0001_init.sql';
 import collectSql from '../../migrations/0002_collect.sql';
+import avatarsSql from '../../migrations/0003_avatars.sql';
 import { isUniqueViolation } from '../lib/db-errors.js';
 import { splitSqlStatements } from '../lib/sql.js';
 
 const MIGRATIONS = [
   { version: '0001_init', sql: initSql },
   { version: '0002_collect', sql: collectSql },
+  { version: '0003_avatars', sql: avatarsSql },
 ];
 
 // 同じ Worker の中では、一度確かめたら次からは確かめない。
